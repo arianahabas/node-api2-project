@@ -26,28 +26,30 @@ router.post('/api/posts' , (req,res) =>{
 
 //POST - Creates a comment for the post with the specified id using information sent inside of the request body. --ERROR
 router.post('/api/posts/:id/comments', (req,res) => {
-    const id = req.params.id
-    const post = posts.findById(id)
+  
     if(!req.body.text){
-        res.status(400).json({
+        return res.status(400).json({
             errorMessage: "Please provide text for the comment."
         })
-    } else if (id != post){
-        res.status(404).json({
-            message: "The post with the specified ID does not exist."
-        })
-    } else {
-        posts.insertComment(req.body)
-        .then((comment)=>{
+    } 
+
+    posts.insertComment(req.body)
+    .then((comment)=>{
+        if(comment){
             res.status(201).json(comment)
-        })
-        .catch((error)=>{
-            console.log(error)
-            res.status(500).json({
-                error: "There was an error while saving the post to the database",
+        } else {
+            res.status(404).json({
+                message: "The post with the specified ID does not exist."
             })
+        }
+    })
+    .catch((error)=>{
+        console.log(error)
+        res.status(500).json({
+            error: "There was an error while saving the post to the database",
         })
-    }
+    })
+    
 })
 
 //GET - Returns an array of all the post objects contained in the database. -DONE
@@ -70,9 +72,8 @@ router.get('/api/posts/:id',  (req, res) => {
     .then((post)=>{
         if (post) {
             res.status(200).json(post)
-       
         } else {
-            //status 400 not working - returns  an empty array
+            //status 400 not working - returns an empty array
             res.status(404).json({
                 message:'Post not found'
             })
@@ -129,9 +130,31 @@ router.delete('/api/posts/:id', (req,res) => {
         })
 })
 
-//PUT - Updates the post with the specified id using data from the request body. Returns the modified document, NOT the original.
+//PUT - Updates the post with the specified id using data from the request body. Returns the modified document, NOT the original. --DONE
 router.put('/api/posts/:id',  (req,res) => {
-
+    //update
+    if(!req.body.title || !req.body.contents){
+        res.status(400).json({
+            errorMessage: "Please provide title and contents for the post."
+        })
+    
+    } else {
+        posts.update(req.params.id, req.body)
+        .then((post)=>{
+            if(post){
+                res.status(200).json(post)
+            } else {
+                res.status(404).json({
+                    message: "The post with the specified ID does not exist."
+                })
+            }
+        })
+        .catch((error)=>{
+            res.status(500).json({
+                error: "The post information could not be modified."
+            })
+        })
+    }
 })
 
 

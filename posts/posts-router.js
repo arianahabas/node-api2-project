@@ -24,32 +24,31 @@ router.post('/api/posts' , (req,res) =>{
     }   
 })
 
-//POST - Creates a comment for the post with the specified id using information sent inside of the request body. --ERROR
+//POST - Creates a comment for the post with the specified id using information sent inside of the request body. --DONE
 router.post('/api/posts/:id/comments', (req,res) => {
   
     if(!req.body.text){
-        return res.status(400).json({
+         res.status(400).json({
             errorMessage: "Please provide text for the comment."
         })
-    } 
-
-    posts.insertComment(req.body)
-    .then((comment)=>{
-        if(comment){
-            res.status(201).json(comment)
-        } else {
-            res.status(404).json({
-                message: "The post with the specified ID does not exist."
-            })
-        }
-    })
-    .catch((error)=>{
-        console.log(error)
-        res.status(500).json({
-            error: "There was an error while saving the post to the database",
+    } else {
+        posts.insertComment(req.body)
+        .then((comment)=>{
+            if(comment){
+                res.status(201).json(comment)
+            } else {
+                res.status(404).json({
+                    message: "The post with the specified ID does not exist."
+                })
+            }
         })
-    })
-    
+        .catch((error)=>{
+            console.log(error)
+            res.status(500).json({
+                error: "There was an error while saving the post to the database",
+            })
+        })
+    }
 })
 
 //GET - Returns an array of all the post objects contained in the database. -DONE

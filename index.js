@@ -2,9 +2,11 @@ const express = require('express');
 const server = express();
 const port = 3000;
 const postsRouter = require("./posts/posts-router")
+const cors = require('cors')
 
 
 server.use(express.json())
+server.use(cors())
 server.use(postsRouter)
 
 server.get('/', (req, res) => {
